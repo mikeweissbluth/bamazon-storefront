@@ -61,11 +61,15 @@ function managerMenu(){
     if (val.choice == menuOptions[1]) {
             // then run the view products function- Manager needs to see: the item IDs, names, prices, and quantities
             viewLowInventory();
-    }
+        }
     if (val.choice == menuOptions[2]) {
         //run Add to Inventory
-        addtoInventory();
-    }   
+        addtoInventory();  
+         }
+    if (val.choice == menuOptions[3]) {
+    //run Add to Inventory
+    addingNewItemID();
+        }  
     })
 }
 function viewProducts() {
@@ -106,20 +110,43 @@ function increaseInventory(item){
 // the manager's input needs to be added to the quantity and then the table should print with a new quantity.
 let query = "UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?"
 connection.query(query, 
-    [quantity, product.item_id],
+    [val.item, item],
     function(err, res) {
-    console.log(success)})
+    console.log(res)})
     });
 }
+//When a manager needs to add new item
+function addingNewItemID(item){
+    // adding prompts for the new item's profile: product_name, department_name, price, stock_quantity 
+    inquirer.prompt([{
+        type: 'input',
+        name: 'product_name',
+        message: "What is the product's name?"
+    },
+    {
+        type: 'input',
+        name: 'department_name',
+        message: "Which department do you assign this product to?"
+    },
+    {
+        type: 'input',
+        name: 'price',
+        message: "Price?"
+    },
+    {
+        type: 'input',
+        name: 'stock_quantity',
+        message: "How many units do you wish to add?"
+    }
 
-
-
-
-
-//         // prompt customer for product
-//         console.log("inventory:");
-//         console.log(res);
-//         //using the result we get from the database as an argument for the function below.
-//         promptCustomerForItem(res);
-//     });
-// }
+]).then(function(val){
+    console.log (val);
+// the manager's input needs to be added to the quantity and then the table should print with a new quantity. "INSERT INTO table_name //(column1, column2, column3, ...)
+//VALUES (value1, value2, value3, ...);
+ let query = "INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES (?, ?, ?, ?)"
+connection.query(query, 
+    [val.product_name, val.department_name, val.price, val.stock_quantity],
+    function(err, res) {
+    console.log(res)})
+     });
+}

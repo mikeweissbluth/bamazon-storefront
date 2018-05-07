@@ -24,7 +24,7 @@ function loadProducts() {
     connection.query(query, function(err, res) {
         // show the products
         console.table(res);
-
+4
         // prompt customer for product
         console.log("inventory:");
         console.log(res);
@@ -34,25 +34,41 @@ function loadProducts() {
 }
 
 function promptCustomerForItem(inventory) {
-    inquirer.prompt([{
-        type: 'input',
-        name: 'choice',
-        message: 'What is the ID of the item you would like to purchase?',
-    }]).then(function(val) {
-        let choiceId = parseInt(val.choice);
-        // query products to see if have enough
-        let product = checkInventory(choiceId, inventory);
-        if (product) {
-            promptCustomerForQuantity(product);
-        } else {
-            console.log('That item is not in our inventory');
-            loadProducts();
+    // Prompts user for what they would like to purchase
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          name: "choice",
+          message: "What is the ID of the item you would you like to purchase? [Quit with Q]",
+          validate: function(val) {
+            return !isNaN(val) || val.toLowerCase() === "q";
+          }
         }
-    });
-}
+      ])
+      .then(function(val) {
+        // Check if the user wants to quit the program
+        var choiceId = parseInt(val.choice);
+        var product = checkInventory(choiceId, inventory);
+  
+        // If there is a product with the id the user chose, prompt the customer for a desired quantity
+        if (product) {
+          // Pass the chosen product to promptCustomerForQuantity
+          promptCustomerForQuantity(product);
+        }
+        else {
+          // Otherwise let them know the item is not in the inventory, re-run loadProducts
+          console.log("\nThat item is not in the inventory.");
+          loadProducts();
+        }
+      });
+  }
 // finding out how many the customer wants
 function promptCustomerForQuantity(product) {
     inquirer.prompt([{
+        type: "input",
+        name: "quantity",
+        message: "How many would you like? [Quit with Q]",
         // prompt for quanty
     }]).then(function(val) {
         let quantity = parseInt(val.quantity);
@@ -70,10 +86,9 @@ function makePurchase(product, quantity) {
         'UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?',
         [quantity, product.item_id],
         function(err, res) {
-            console.log(success);
-            loadProduct();
+            console.log(res);
+            loadProducts();
         }
-
     )
 }
 // for loop, looping through each item in the inventory. confirming the ID actually exists in our inventory
